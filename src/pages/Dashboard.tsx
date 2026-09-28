@@ -30,10 +30,13 @@ import {
 } from 'lucide-react';
 import { gitlabApi } from '../api/gitlabApi';
 import { useToast } from '../hooks/useToast';
+import { useEnvironment } from '../hooks/useEnvironment';
+import { EnvironmentSelector } from '../components/EnvironmentSelector';
 import type { GitLabSearchFile, GitLabCreateMergeRequestResponse } from '../types';
 
 export function DashboardPage() {
   const { addToast } = useToast();
+  const { baseUrl, environment, envInfo } = useEnvironment();
   const diffEditorRef = useRef<any>(null);
 
   // Screen 1: Search Report State (GitLab)
@@ -184,7 +187,7 @@ export function DashboardPage() {
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'API connection failed';
-      setSearchError(`${errorMsg} (http://localhost:8008)`);
+      setSearchError(`${errorMsg} (${baseUrl})`);
       setResults(null);
       setSelectedFile(null);
     } finally {
@@ -210,7 +213,7 @@ export function DashboardPage() {
       addToast('success', 'GitLab file loaded');
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to fetch GitLab file';
-      setSearchError(`${errorMsg} (http://localhost:8008)`);
+      setSearchError(`${errorMsg} (${baseUrl})`);
       setGitlabJson('');
     } finally {
       setIsLoadingGitlabFile(false);
@@ -235,7 +238,7 @@ export function DashboardPage() {
       addToast('success', `Database report config generated for ${targetId}`);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to generate report JSON';
-      setGenError(`${errorMsg} — verify service on http://localhost:8008`);
+      setGenError(`${errorMsg} — verify service on ${baseUrl}`);
       setGeneratedJson('');
     } finally {
       setIsLoadingGen(false);
@@ -484,11 +487,11 @@ export function DashboardPage() {
     { label: `${currentCleanRm}-update-fields`, desc: 'Field updates' },
   ];
 
-  // Initial queries on mount
+  // Queries on mount and when environment changes
   useEffect(() => {
-    executeSearch('qa', '10174');
-    executeGenerate('10174', 'auto');
-  }, []);
+    executeSearch(branch, reportInput);
+    executeGenerate(genReportId || '10174', genMode || 'auto');
+  }, [environment]);
 
   return (
     <div
@@ -601,8 +604,10 @@ export function DashboardPage() {
           )}
         </div>
 
-        {/* Sync Action */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {/* Sync Action & Environment Radio */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <EnvironmentSelector variant="radio" />
+
           <button
             type="button"
             onClick={() => {
@@ -614,10 +619,10 @@ export function DashboardPage() {
               executeGenerate(genReportId, genMode);
             }}
             className="btn-ghost"
-            style={{ fontSize: 11, padding: '2px 8px', height: 26, gap: 4 }}
-            title="Reload both from APIs"
+            style={{ fontSize: 11, padding: '4px 10px', height: 28, gap: 5, borderRadius: 'var(--radius-sm)' }}
+            title={`Reload both from active environment (${baseUrl})`}
           >
-            <RefreshCw size={11} className={isLoadingSearch || isLoadingGitlabFile || isLoadingGen ? 'animate-spin' : ''} />
+            <RefreshCw size={12} className={isLoadingSearch || isLoadingGitlabFile || isLoadingGen ? 'animate-spin' : ''} />
             <span>Reload APIs</span>
           </button>
         </div>

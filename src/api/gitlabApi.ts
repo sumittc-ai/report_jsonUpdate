@@ -18,6 +18,7 @@ import {
   mockUpdateHistory,
   mockSettings,
 } from '../data/mockData';
+import { API_ENDPOINTS, getApiBaseUrl } from '../config/apiConfig';
 
 // Simulate network delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -167,7 +168,7 @@ export const gitlabApi = {
   async searchReportFiles(branch: 'qa' | 'master', searchParam: string): Promise<import('../types').GitLabSearchFile[]> {
     const rawSearch = searchParam.trim();
     const formattedSearch = rawSearch.startsWith('report_') ? rawSearch : `report_${rawSearch}`;
-    const url = `http://localhost:8008/reports/generatorservice/api/gitlab/files?branch=${encodeURIComponent(branch)}&search=${encodeURIComponent(formattedSearch)}`;
+    const url = `${API_ENDPOINTS.SEARCH_FILES}?branch=${encodeURIComponent(branch)}&search=${encodeURIComponent(formattedSearch)}`;
 
     try {
       const response = await fetch(url, {
@@ -184,7 +185,7 @@ export const gitlabApi = {
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     } catch (err: unknown) {
-      console.warn('Direct API call to localhost:8008 failed, checking error:', err);
+      console.warn(`Direct API call to ${getApiBaseUrl()} failed, checking error:`, err);
       throw err;
     }
   },
@@ -206,7 +207,7 @@ export const gitlabApi = {
 
     const isHycile = mode === 'hycile' ? true : mode === 'dynamic' ? false : cleanId.length >= 5;
     const apiPath = isHycile ? 'getReportConfigJSONWithReport' : 'getReportConfigJSONDynamicWithReport';
-    const url = `http://localhost:8008/reports/generatorservice/api/v1/generate/${apiPath}?reportId=${encodeURIComponent(
+    const url = `${API_ENDPOINTS.GENERATE_REPORT(apiPath)}?reportId=${encodeURIComponent(
       cleanId
     )}`;
 
@@ -237,7 +238,7 @@ export const gitlabApi = {
     branch: string,
     filePath: string
   ): Promise<{ filePath: string; branch: string; content: any; encoding?: string }> {
-    const url = `http://localhost:8008/reports/generatorservice/api/gitlab/file?branch=${encodeURIComponent(
+    const url = `${API_ENDPOINTS.GET_FILE}?branch=${encodeURIComponent(
       branch
     )}&filePath=${encodeURIComponent(filePath)}`;
 
@@ -265,7 +266,7 @@ export const gitlabApi = {
   // Create GitLab Branch
   // ----------------------------------------------------------
   async createBranch(payload: import('../types').GitLabCreateBranchPayload): Promise<import('../types').GitLabCreateBranchResponse> {
-    const url = 'http://localhost:8008/reports/generatorservice/api/gitlab/branches';
+    const url = API_ENDPOINTS.BRANCHES;
 
     try {
       const response = await fetch(url, {
@@ -302,7 +303,7 @@ export const gitlabApi = {
   // Update GitLab File Content
   // ----------------------------------------------------------
   async updateGitlabFile(payload: import('../types').GitLabUpdateFilePayload): Promise<import('../types').GitLabUpdateFileResponse> {
-    const url = 'http://localhost:8008/reports/generatorservice/api/gitlab/file';
+    const url = API_ENDPOINTS.UPDATE_FILE;
 
     try {
       const response = await fetch(url, {
@@ -341,7 +342,7 @@ export const gitlabApi = {
   async createMergeRequest(
     payload: import('../types').GitLabCreateMergeRequestPayload
   ): Promise<import('../types').GitLabCreateMergeRequestResponse> {
-    const url = 'http://localhost:8008/reports/generatorservice/api/gitlab/merge-requests';
+    const url = API_ENDPOINTS.MERGE_REQUESTS;
 
     try {
       const response = await fetch(url, {

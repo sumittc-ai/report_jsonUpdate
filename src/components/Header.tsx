@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, GitBranch, LogOut, User as UserIcon, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { EnvironmentSelector } from './EnvironmentSelector';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -39,10 +40,13 @@ export function Header() {
         zIndex: 40,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <h1 style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.3px', margin: 0 }}>
           REPORT JSON UPDATE TOOL
         </h1>
+
+        {/* Environment Radio Selector in Header */}
+        <EnvironmentSelector variant="radio" />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

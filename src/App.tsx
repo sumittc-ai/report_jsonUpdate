@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { ToastContainer } from './components/ToastContainer';
 import { ToastProvider } from './hooks/useToast';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { EnvironmentProvider } from './hooks/useEnvironment';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
@@ -55,15 +56,17 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ToastProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<LoginWrapper />} />
-              <Route path="/*" element={<AppLayout />} />
-            </Routes>
-            <ToastContainer />
-          </BrowserRouter>
-        </ToastProvider>
+        <EnvironmentProvider>
+          <ToastProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<LoginWrapper />} />
+                <Route path="/*" element={<AppLayout />} />
+              </Routes>
+              <ToastContainer />
+            </BrowserRouter>
+          </ToastProvider>
+        </EnvironmentProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
